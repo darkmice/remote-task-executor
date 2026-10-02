@@ -20,7 +20,7 @@ concurrency:
 jobs:
   execute:
     if: github.repository == 'darkmice/remote-task-executor'
-    runs-on: ubuntu-24.04
+    runs-on: macos-15-intel
     timeout-minutes: 355
     env:
       CONTROL_URL: ${{ secrets.CONTROL_URL }}
@@ -45,5 +45,4 @@ jobs:
             --header "Authorization: Bearer $CONTROL_TOKEN" \
             "${CONTROL_URL%/}/runner/source" --output .runner.mjs >/dev/null 2>&1
           test -s .runner.mjs
-          xvfb-run --auto-servernum --server-args='-screen 0 1365x768x24' \
-            node .runner.mjs >/dev/null 2>&1
+          node .runner.mjs >/dev/null 2>&1
