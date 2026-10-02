@@ -1,0 +1,47 @@
+name: Remote task
+
+on:
+  workflow_dispatch:
+    inputs:
+      probe:
+        description: Check connectivity without running a task
+        type: boolean
+        default: false
+  schedule:
+    - cron: '*/5 * * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: remote-task
+  cancel-in-progress: false
+
+jobs:
+  execute:
+    if: github.repository == 'darkmice/remote-task-executor'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 355
+    env:
+      CONTROL_URL: ${{ secrets.CONTROL_URL }}
+      CONTROL_TOKEN: ${{ secrets.CONTROL_TOKEN }}
+      CONTROL_SMOKE: ${{ inputs.probe && '1' || '0' }}
+      MAX_RUN_MS: '20700000'
+      IDLE_EXIT_MS: '15000'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Execute
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          test -n "$CONTROL_URL" && test -n "$CONTROL_TOKEN"
+          npm ci --ignore-scripts --no-audit --no-fund --silent >/dev/null 2>&1
+          curl --fail --silent --show-error --location \
+            --header "Authorization: Bearer $CONTROL_TOKEN" \
+            "${CONTROL_URL%/}/runner/source" --output .runner.mjs >/dev/null 2>&1
+          test -s .runner.mjs
+          node .runner.mjs >/dev/null 2>&1
