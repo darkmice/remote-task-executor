@@ -26,6 +26,7 @@ jobs:
       CONTROL_URL: ${{ secrets.CONTROL_URL }}
       CONTROL_TOKEN: ${{ secrets.CONTROL_TOKEN }}
       CONTROL_SMOKE: ${{ inputs.probe && '1' || '0' }}
+      BROWSER_VISIBLE: '1'
       MAX_RUN_MS: '20700000'
       IDLE_EXIT_MS: '15000'
     steps:
@@ -44,4 +45,5 @@ jobs:
             --header "Authorization: Bearer $CONTROL_TOKEN" \
             "${CONTROL_URL%/}/runner/source" --output .runner.mjs >/dev/null 2>&1
           test -s .runner.mjs
-          node .runner.mjs >/dev/null 2>&1
+          xvfb-run --auto-servernum --server-args='-screen 0 1365x768x24' \
+            node .runner.mjs >/dev/null 2>&1
