@@ -25,6 +25,7 @@ jobs:
     env:
       CONTROL_URL: ${{ secrets.CONTROL_URL }}
       CONTROL_TOKEN: ${{ secrets.CONTROL_TOKEN }}
+      BROWSER_PROXY_URL: ${{ secrets.BROWSER_PROXY_URL }}
       CONTROL_SMOKE: ${{ inputs.probe && '1' || '0' }}
       BROWSER_VISIBLE: '1'
       MAX_RUN_MS: '20700000'
